@@ -1,6 +1,8 @@
 ; hello-os
 ; TAB=4
 
+CYLS    EQU 10
+
     ORG 0x7c00
 
 ; For FAT12 Format FloppyDisk
@@ -41,12 +43,39 @@ entry:
     MOV DH, 0       ; Head 0
     MOV CL, 2       ; Sector2
 
+readloop:
+    MOV SI, 0       ; 失敗回数用
+
+retry:
     MOV AH, 0x02    ; read disk
     MOV AL, 1
     MOV BX, 0
     MOV DL, 0x00
     INT 0x13
-    JC  error
+    JNC next
+    ADD SI, 1
+    CMP SI, 5
+    JAE error
+    MOV AH, 0x00
+    MOV DL, 0x00
+    INT 0x13        ; reset drive
+    JMP retry
+next:
+    MOV AX,ES
+    ADD AX, 0x0020  ; 512/16
+    MOV ES, AX
+    ADD CL, 1
+    CMP CL, 18
+    JBE readloop
+    MOV CL, 1
+    ADD DH, 1
+    CMP DH, 2
+    JB  readloop
+    MOV DH, 0
+    ADD CH, 1
+    CMP CH, CYLS
+    JB  readloop
+
 
 fin:
     HLT
