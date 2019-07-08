@@ -1,4 +1,3 @@
 bin/
 boot.vfd
-*.sys
-*.bin
+tmp/
