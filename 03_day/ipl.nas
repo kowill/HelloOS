@@ -76,6 +76,10 @@ next:
     CMP CH, CYLS
     JB  readloop
 
+; exexute haribote.sys 
+    MOV [0x0ff0], CH    ; IPLが読み込んだCYLS数をメモ
+    JMP 0xc200
+
 fin:
     HLT
     JMP fin
