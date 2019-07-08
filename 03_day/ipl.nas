@@ -76,7 +76,6 @@ next:
     CMP CH, CYLS
     JB  readloop
 
-
 fin:
     HLT
     JMP fin
