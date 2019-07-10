@@ -1,3 +1,4 @@
+@echo off
 setlocal
 
 del /Q boot.vfd
@@ -20,7 +21,7 @@ bin\tolset\z_tools\gas2nask.exe -a tmp\bootpack.gas tmp\bootpack.nas
 
 REM nas 2 obj
 bin\tolset\z_tools\nask.exe tmp\bootpack.nas tmp\bootpack.obj
-bin\tolset\z_tools\nask.exe %targetPath%\naskfunc.nas tmp\naskfunc.obj
+bin\tolset\z_tools\nask.exe %targetPath%\naskfunc.nas tmp\naskfunc.obj tmp\naskfunc.lst
 
 REM obj 2 bim
 bin\tolset\z_tools\obj2bim.exe @bin\tolset\z_tools\haribote\haribote.rul out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map tmp\bootpack.obj tmp\naskfunc.obj
