@@ -15,6 +15,13 @@
 #define COL8_008484 14
 #define COL8_848484 15
 
+struct BOOTINFO
+{
+    char cyls, leds, vmode, reserve;
+    short scrnx, scrny;
+    char *vram;
+};
+
 void io_hlt(void);
 void io_cli(void);
 void io_out8(int port, int data);
@@ -27,24 +34,24 @@ void set_palette(int start, int end, unsigned char *rgb);
 void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
 
 void show_boxes();
-void show_home();
+void init_screen(char *vram, int xsize, int ysize);
 
 void HariMain(void)
 {
+    struct BOOTINFO *binfo;
+
+    binfo = (struct BOOTINFO *)0x0ff0;
+
     init_palette();
 
-    show_home();
+    init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
 
     for (;;)
         io_hlt();
 }
 
-void show_home()
+void init_screen(char *vram, int xsize, int ysize)
 {
-    char *vram = (char *)0xa0000;
-    int xsize = 320;
-    int ysize = 200;
-
     boxfill8(vram, xsize, COL8_008484, 0, 0, xsize - 1, ysize - 29);
     boxfill8(vram, xsize, COL8_C6C6C6, 0, ysize - 28, xsize - 1, ysize - 28);
     boxfill8(vram, xsize, COL8_FFFFFF, 0, ysize - 27, xsize - 1, ysize - 27);
