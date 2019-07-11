@@ -5,6 +5,7 @@ if($Vm -eq $null)
 {
     NEW-VM $ServerName -Path "F:\vhd\$VMName" -Generation 1 -MemoryStartupBytes 67108864 -NewVHDPath "F:\vhd\$ServerName\$ServerName.vhdx" -NewVHDSizeBytes 3145728 -BootDevice "Floppy"
     Set-VMFloppyDiskDrive $ServerName "$PSScriptRoot\boot.vfd"
+    Set-VM -Name $ServerName -AutomaticCheckpointsEnabled 0
 }
 
 Start-VM -Name $ServerName

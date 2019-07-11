@@ -32,19 +32,25 @@ void init_palette(void);
 void set_palette(int start, int end, unsigned char *rgb);
 
 void boxfill8(unsigned char *vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font);
 
 void show_boxes();
 void init_screen(char *vram, int xsize, int ysize);
 
 void HariMain(void)
 {
-    struct BOOTINFO *binfo;
-
-    binfo = (struct BOOTINFO *)0x0ff0;
+    struct BOOTINFO *binfo = (struct BOOTINFO *)0x0ff0;
+    extern char hankaku[4096];
 
     init_palette();
-
     init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
+
+    putfont8(binfo->vram, binfo->scrnx, 8 * 1, 8, COL8_FFFFFF, hankaku + 'H' * 16);
+    putfont8(binfo->vram, binfo->scrnx, 8 * 2, 8, COL8_FFFFFF, hankaku + 'E' * 16);
+    putfont8(binfo->vram, binfo->scrnx, 8 * 3, 8, COL8_FFFFFF, hankaku + 'L' * 16);
+    putfont8(binfo->vram, binfo->scrnx, 8 * 4, 8, COL8_FFFFFF, hankaku + 'L' * 16);
+    putfont8(binfo->vram, binfo->scrnx, 8 * 5, 8, COL8_FFFFFF, hankaku + 'O' * 16);
+    putfont8(binfo->vram, binfo->scrnx, 8 * 6, 8, COL8_FFFFFF, hankaku + '!' * 16);
 
     for (;;)
         io_hlt();
@@ -124,5 +130,33 @@ void set_palette(int start, int end, unsigned char *rgb)
         rgb += 3;
     }
     io_store_eflags(eflags); /* 割り込み許可フラグ */
+    return;
+}
+
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font)
+{
+    int i;
+    char *p, d;
+    for (i = 0; i < 16; i++)
+    {
+        p = vram + (y + i) * xsize + x;
+        d = font[i];
+        if ((d & 0x80) != 0)
+            p[0] = c;
+        if ((d & 0x40) != 0)
+            p[1] = c;
+        if ((d & 0x20) != 0)
+            p[2] = c;
+        if ((d & 0x10) != 0)
+            p[3] = c;
+        if ((d & 0x08) != 0)
+            p[4] = c;
+        if ((d & 0x04) != 0)
+            p[5] = c;
+        if ((d & 0x02) != 0)
+            p[6] = c;
+        if ((d & 0x01) != 0)
+            p[7] = c;
+    }
     return;
 }

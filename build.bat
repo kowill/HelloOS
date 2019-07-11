@@ -23,8 +23,12 @@ REM nas 2 obj
 bin\tolset\z_tools\nask.exe tmp\bootpack.nas tmp\bootpack.obj
 bin\tolset\z_tools\nask.exe %targetPath%\naskfunc.nas tmp\naskfunc.obj tmp\naskfunc.lst
 
+REM font section
+bin\tolset\z_tools\makefont.exe %targetPath%\hankaku.txt tmp\hankaku.bin
+bin\tolset\z_tools\bin2obj.exe tmp\hankaku.bin tmp\hankaku.obj _hankaku
+
 REM obj 2 bim
-bin\tolset\z_tools\obj2bim.exe @bin\tolset\z_tools\haribote\haribote.rul out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map tmp\bootpack.obj tmp\naskfunc.obj
+bin\tolset\z_tools\obj2bim.exe @bin\tolset\z_tools\haribote\haribote.rul out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map tmp\bootpack.obj tmp\naskfunc.obj tmp\hankaku.obj
 
 REM bim 2 hrb
 bin\tolset\z_tools\bim2hrb.exe tmp\bootpack.bim tmp\bootpack.hrb 0
