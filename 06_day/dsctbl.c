@@ -13,10 +13,13 @@ void init_gdtidt(void)
     set_segmdesc(gdt + 2, 0x0007ffff, 0x00280000, 0x409a);
     load_gdtr(0xffff, 0x00270000);
 
+    /* IDT */
     for (i = 0; i < 256; i++)
         set_gatedesc(idt + i, 0, 0, 0);
 
     load_idtr(0x7ff, 0x0026f800);
+    set_gatedesc(idt + 0x21, (int)asm_inthandler21, 2 * 8, AR_INTGATE32);
+    set_gatedesc(idt + 0x2c, (int)asm_inthandler2c, 2 * 8, AR_INTGATE32);
 
     return;
 }
