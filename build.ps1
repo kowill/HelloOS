@@ -25,7 +25,8 @@ bin\tolset\z_tools\makefont.exe "$($targetPath)\hankaku.txt" tmp\hankaku.bin
 bin\tolset\z_tools\bin2obj.exe tmp\hankaku.bin tmp\hankaku.obj _hankaku
 
 # obj 2 bim
-bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map tmp\bootpack.obj tmp\naskfunc.obj tmp\hankaku.obj tmp\dsctbl.obj tmp\graphic.obj tmp\int.obj
+$obj = Get-ChildItem "tmp\" -recurse -include *.obj | %{$_.FullName};
+bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map $obj
 
 # bim 2 hrb
 bin\tolset\z_tools\bim2hrb.exe tmp\bootpack.bim tmp\bootpack.hrb 0
