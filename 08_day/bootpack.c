@@ -11,7 +11,7 @@ void HariMain(void)
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
     char s[20], mousecursor[256], keybuf[32], mousebuf[128];
-    int i;
+    int i, mx, my;
 
     init_gdtidt();
     init_pic();
@@ -25,7 +25,9 @@ void HariMain(void)
     init_palette();
     init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
     init_mouse_coursor8(mousecursor, COL8_008484);
-    putblock8_8(binfo->vram, binfo->scrnx, 16, 16, (binfo->scrnx - 16) / 2, (binfo->scrny - 28 - 16) / 2, mousecursor, 16);
+    mx = (binfo->scrnx - 16) / 2;
+    my = (binfo->scrny - 28 - 16) / 2;
+    putblock8_8(binfo->vram, binfo->scrnx, 16, 16, mx, my, mousecursor, 16);
 
     putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, COL8_FFFFFF, "HELLO, WORLD!!");
 
@@ -64,6 +66,22 @@ void HariMain(void)
                         s[2] = 'C';
                     boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 32, 16, 32 + 15 * 8 - 1, 31);
                     putfonts8_asc(binfo->vram, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
+                    /* mouse cursor */
+                    boxfill8(binfo->vram, binfo->scrnx, COL8_008484, mx, my, mx + 15, my + 15);
+                    mx += mdec.x;
+                    my += mdec.y;
+                    if (mx < 0)
+                        mx = 0;
+                    if (my < 0)
+                        my = 0;
+                    if (mx > binfo->scrnx - 16)
+                        mx = binfo->scrnx - 16;
+                    if (my > binfo->scrny - 16)
+                        my = binfo->scrny - 16;
+                    sprintf(s, "(%3d, %3d)", mx, my);
+                    boxfill8(binfo->vram, binfo->scrnx, COL8_008484, 0, 32, 79, 47);
+                    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 32, COL8_FFFFFF, s);
+                    putblock8_8(binfo->vram, binfo->scrnx, 16, 16, mx, my, mousecursor, 16);
                 }
             }
         }
