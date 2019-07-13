@@ -23,23 +23,3 @@ void init_pic(void)
     return;
 }
 
-void inthandler21(int *esp)
-{
-    /* from keybord */
-    unsigned char data;
-    io_out8(PIC0_OCW2, 0x61); // IRQ-01受付完了
-    data = io_in8(PORT_KEYDAT);
-    fifo8_put(&keyfifo, data);
-    return;
-}
-
-void inthandler2c(int *esp)
-{
-    /* from mouse */
-    unsigned char data;
-    io_out8(PIC1_OCW2, 0x64); // IRQ-12受付完了
-    io_out8(PIC0_OCW2, 0x62); // IRQ-02受付完了
-    data = io_in8(PORT_KEYDAT);
-    fifo8_put(&mousefifo, data);
-    return;
-}

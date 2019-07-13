@@ -1,17 +1,5 @@
-#define PORT_KEYDAT 0x0060
 #define PORT_KEYSTA 0x0064
 #define PORT_KEYCMD 0x0064
-#define KEYSTA_SEND_NORTEADY 0x02
-#define KEYCMD_WRITE_MODE 0x60
-#define KBC_MODE 0x47
-#define KEYCMD_SENDTO_MOUSE 0xd4
-#define MOUSECMD_ENABLE 0xf4
-
-struct MOUSE_DEC
-{
-    unsigned char buf[3], phase;
-    int x, y, btn;
-};
 
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x0000ff0
@@ -104,8 +92,7 @@ void load_idtr(int limit, int addr);
 #define PORT_KEYDAT 0x0060
 
 void init_pic(void);
-void inthandler21(int *esp);
-void inthandler2c(int *esp);
+
 
 /* fifl.c */
 struct FIFO8
@@ -118,3 +105,30 @@ void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf);
 int fifo8_put(struct FIFO8 *fifo, unsigned char data);
 int fifo8_get(struct FIFO8 *fifo);
 int fifo8_status(struct FIFO8 *fifo);
+
+/* keyboard.c */
+#define PORT_KEYDAT 0x0060
+#define KEYSTA_SEND_NORTEADY 0x02
+#define KEYCMD_WRITE_MODE 0x60
+#define KBC_MODE 0x47
+
+void inthandler21(int *esp);
+void init_keyboard(void);
+void wait_KBC_sendready(void);
+
+extern struct FIFO8 keyfifo;
+
+/* mouse.c */
+#define KEYCMD_SENDTO_MOUSE 0xd4
+#define MOUSECMD_ENABLE 0xf4
+struct MOUSE_DEC
+{
+    unsigned char buf[3], phase;
+    int x, y, btn;
+};
+
+void inthandler2c(int *esp);
+void enable_mouse(struct MOUSE_DEC *mdec);
+int mouse_decode(struct MOUSE_DEC *mdec, unsigned char data);
+
+extern struct FIFO8 mousefifo;
