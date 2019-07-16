@@ -1,5 +1,7 @@
 #define PORT_KEYSTA 0x0064
 #define PORT_KEYCMD 0x0064
+#define EFLAGS_AC_BIT 0x00040000
+#define CR0_CACHE_DISABLE 0x60000000
 
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x0000ff0
@@ -22,6 +24,8 @@ int io_load_eflags(void);
 void io_store_eflags(int eflags);
 void asm_inthandler21(void);
 void asm_inthandler2c(void);
+int load_cr0(void);
+void store_cr0(int cr0);
 
 /* graphic.c */
 #define COL8_000000 0
