@@ -2,6 +2,18 @@
 #define PORT_KEYCMD 0x0064
 #define EFLAGS_AC_BIT 0x00040000
 #define CR0_CACHE_DISABLE 0x60000000
+#define MEMMAN_FREES 4090
+#define MEMMAN_ADDR 0x003c0000
+struct MEMFREEINFO
+{
+    unsigned int addr, size;
+};
+
+struct MEMMAN
+{
+    int frees, maxfrees, lostsize, losts;
+    struct MEMFREEINFO free[MEMMAN_FREES];
+};
 
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x0000ff0
@@ -97,7 +109,6 @@ void load_idtr(int limit, int addr);
 #define PORT_KEYDAT 0x0060
 
 void init_pic(void);
-
 
 /* fifl.c */
 struct FIFO8
