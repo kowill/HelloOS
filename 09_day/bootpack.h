@@ -26,6 +26,7 @@ void asm_inthandler21(void);
 void asm_inthandler2c(void);
 int load_cr0(void);
 void store_cr0(int cr0);
+unsigned int memtest_sub(unsigned int start, unsigned int end);
 
 /* graphic.c */
 #define COL8_000000 0
