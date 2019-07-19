@@ -15,6 +15,8 @@ struct MEMMAN
     struct MEMFREEINFO free[MEMMAN_FREES];
 };
 
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
+
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x0000ff0
 
@@ -181,8 +183,7 @@ struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize
 struct SHEET *sheet_alloc(struct SHTCTL *ctl);
 void sheet_setbuf(struct SHEET *sht, unsigned char *buf, int xsize, int ysize, int col_inv);
 void sheet_updown(struct SHEET *sht, int height);
-void sheet_refresh( struct SHEET *sht, int bx0, int by0, int bx1, int by1);
+void sheet_refresh(struct SHEET *sht, int bx0, int by0, int bx1, int by1);
 void sheet_refreshsub(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1);
 void sheet_slide(struct SHEET *sht, int vx0, int vy0);
 void sheet_free(struct SHEET *sht);
-
