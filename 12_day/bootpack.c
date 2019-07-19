@@ -5,13 +5,14 @@ void HariMain(void)
 {
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
-    char s[40], keybuf[32], mousebuf[128];
+    char s[40], keybuf[32], mousebuf[128], timerbuf[8];
     int i, mx, my;
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
     struct SHEET *sht_back, *sht_mouse, *sht_win;
     unsigned char *buf_back, buf_mouse[256], *buf_win;
+    struct FIFO8 timerfifo;
 
     init_gdtidt();
     init_pic();
@@ -23,12 +24,15 @@ void HariMain(void)
     io_out8(PIC0_IMR, 0xf8); // PITとPIC1とキーボードを許可 (11111000)
     io_out8(PIC1_IMR, 0xef);
 
+    fifo8_init(&timerfifo, 8, timerbuf);
+    settimer(1000, &timerfifo, 1);
+
     init_keyboard();
     enable_mouse(&mdec);
 
     memtotal = memtest(0x00400000, 0xbfffffff);
     memman_init(memman);
-    memman_free(memman, 0x000010000, 0x0009e000);
+    memman_free(memman, 0x00001000, 0x0009e000);
     memman_free(memman, 0x00400000, memtotal - 0x00400000);
 
     init_palette();
@@ -66,7 +70,7 @@ void HariMain(void)
         sheet_refresh(sht_win, 40, 28, 120, 44);
 
         io_cli();
-        if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) == 0)
+        if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) + fifo8_status(&timerfifo) == 0)
         {
             io_sti();
         }
@@ -114,6 +118,13 @@ void HariMain(void)
                     sheet_refresh(sht_back, 0, 32, 80, 48);
                     sheet_slide(sht_mouse, mx, my);
                 }
+            }
+            else if (fifo8_status(&timerfifo) != 0)
+            {
+                i = fifo8_get(&timerfifo);
+                io_sti();
+                putfonts8_asc(buf_back, binfo->scrnx, 0, 64, COL8_FFFFFF, "10[sec]");
+                sheet_refresh(sht_back, 0, 64, 56, 80);
             }
         }
     }
