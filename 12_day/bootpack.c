@@ -7,7 +7,7 @@ void HariMain(void)
     struct MOUSE_DEC mdec;
     char s[40], keybuf[32], mousebuf[128];
     int i, mx, my;
-    unsigned int memtotal, count = 0;
+    unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
     struct SHEET *sht_back, *sht_mouse, *sht_win;
@@ -19,7 +19,7 @@ void HariMain(void)
 
     fifo8_init(&keyfifo, sizeof(keybuf), keybuf);
     fifo8_init(&mousefifo, sizeof(mousebuf), mousebuf);
-    init_pic();
+    init_pit();
     io_out8(PIC0_IMR, 0xf8); // PITとPIC1とキーボードを許可 (11111000)
     io_out8(PIC1_IMR, 0xef);
 
@@ -60,8 +60,7 @@ void HariMain(void)
 
     for (;;)
     {
-        count++;
-        sprintf(s, "%010d", count);
+        sprintf(s, "%010d", timerctl.count);
         boxfill8(buf_win, 160, COL8_C6C6C6, 40, 28, 119, 43);
         putfonts8_asc(buf_win, 160, 40, 28, COL8_000000, s);
         sheet_refresh(sht_win, 40, 28, 120, 44);
