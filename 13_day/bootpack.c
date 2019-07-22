@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "bootpack.h"
 
+void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
+
 void HariMain(void)
 {
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
@@ -70,17 +72,14 @@ void HariMain(void)
     sheet_updown(sht_back, 0);
     sheet_updown(sht_win, 1);
     sheet_updown(sht_mouse, 2);
-    putfonts8_asc(buf_back, binfo->scrnx, 0, 0, COL8_FFFFFF, "HELLO, WORLD!!");
+    putfonts8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, "HELLO, WORLD!!", 15);
     sprintf(s, "mem: %dMB  free: %dKB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
-    putfonts8_asc(buf_back, binfo->scrnx, 0, 48, COL8_FFFFFF, s);
-    sheet_refresh(sht_back, 0, 0, binfo->scrnx, 64);
+    putfonts8_asc_sht(sht_back, 0, 48, COL8_FFFFFF, COL8_008484, s, 40);
 
     for (;;)
     {
         sprintf(s, "%010d", timerctl.count);
-        boxfill8(buf_win, 160, COL8_C6C6C6, 40, 28, 119, 43);
-        putfonts8_asc(buf_win, 160, 40, 28, COL8_000000, s);
-        sheet_refresh(sht_win, 40, 28, 120, 44);
+        putfonts8_asc_sht(sht_win, 40, 28, COL8_000000, COL8_C6C6C6, s, 10);
 
         io_cli();
         if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) + fifo8_status(&timerfifo) + fifo8_status(&timerfifo2) + fifo8_status(&timerfifo3) == 0)
@@ -94,9 +93,7 @@ void HariMain(void)
                 i = fifo8_get(&keyfifo);
                 io_sti();
                 sprintf(s, "%02X", i);
-                boxfill8(buf_back, binfo->scrnx, COL8_008484, 0, 16, 15, 31);
-                putfonts8_asc(buf_back, binfo->scrnx, 0, 16, COL8_FFFFFF, s);
-                sheet_refresh(sht_back, 0, 16, 16, 32);
+                putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
             }
             else if (fifo8_status(&mousefifo) != 0)
             {
@@ -111,9 +108,7 @@ void HariMain(void)
                         s[3] = 'R';
                     if ((mdec.btn & 0x04) != 0)
                         s[2] = 'C';
-                    boxfill8(buf_back, binfo->scrnx, COL8_008484, 32, 16, 32 + 15 * 8 - 1, 31);
-                    putfonts8_asc(buf_back, binfo->scrnx, 32, 16, COL8_FFFFFF, s);
-                    sheet_refresh(sht_back, 32, 16, 32 + 15 * 8, 32);
+                    putfonts8_asc_sht(sht_back, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
                     /* mouse cursor */
                     mx += mdec.x;
                     my += mdec.y;
@@ -126,9 +121,7 @@ void HariMain(void)
                     if (my > binfo->scrny - 1)
                         my = binfo->scrny - 1;
                     sprintf(s, "(%3d, %3d)", mx, my);
-                    boxfill8(buf_back, binfo->scrnx, COL8_008484, 0, 32, 79, 47);
-                    putfonts8_asc(buf_back, binfo->scrnx, 0, 32, COL8_FFFFFF, s);
-                    sheet_refresh(sht_back, 0, 32, 80, 48);
+                    putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 10);
                     sheet_slide(sht_mouse, mx, my);
                 }
             }
@@ -136,15 +129,13 @@ void HariMain(void)
             {
                 i = fifo8_get(&timerfifo);
                 io_sti();
-                putfonts8_asc(buf_back, binfo->scrnx, 0, 64, COL8_FFFFFF, "10[sec]");
-                sheet_refresh(sht_back, 0, 64, 56, 80);
+                putfonts8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[sec]", 7);
             }
             else if (fifo8_status(&timerfifo2) != 0)
             {
                 i = fifo8_get(&timerfifo2);
                 io_sti();
-                putfonts8_asc(buf_back, binfo->scrnx, 0, 80, COL8_FFFFFF, "3[sec]");
-                sheet_refresh(sht_back, 0, 80, 48, 96);
+                putfonts8_asc_sht(sht_back, 0, 80, COL8_FFFFFF, COL8_008484, "3[sec]", 6);
             }
             else if (fifo8_status(&timerfifo3) != 0)
             {
@@ -211,5 +202,13 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
                 c = COL8_FFFFFF;
             buf[(5 + y) * xsize + (xsize - 21 + x)] = c;
         }
+    return;
+}
+
+void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l)
+{
+    boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * 8 - 1, y + 15);
+    putfonts8_asc(sht->buf, sht->bxsize, x, y, c, s);
+    sheet_refresh(sht, x, y, x + l * 8, y + 16);
     return;
 }
