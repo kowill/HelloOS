@@ -13,7 +13,7 @@
     GLOBAL _asm_inthandler21, _asm_inthandler2c, _asm_inthandler20
     GLOBAL _load_cr0, _store_cr0
     GLOBAL _memtest_sub
-    GLOBAL _load_tr, _taskswitch4
+    GLOBAL _load_tr, _taskswitch3, _taskswitch4
     EXTERN _inthandler21, _inthandler2c, _inthandler20
 
 [SECTION .text]
@@ -184,6 +184,10 @@ mts_fin:
 
 _load_tr:   ; void load_tr(int tr);
     LTR [ESP+4]
+    RET
+
+_taskswitch3:   ; void taskswitch3(void);
+    JMP 3*8:0
     RET
 
 _taskswitch4:   ; void taskswitch4(void);
