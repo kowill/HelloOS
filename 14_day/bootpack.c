@@ -145,6 +145,8 @@ void HariMain(void)
                     sprintf(s, "(%3d, %3d)", mx, my);
                     putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 10);
                     sheet_slide(sht_mouse, mx, my);
+                    if ((mdec.btn & 0x01) != 0)
+                        sheet_slide(sht_win, mx - 80, my - 8);
                 }
             }
             else if (i == 10)
@@ -169,7 +171,7 @@ void HariMain(void)
                 }
                 timer_settime(timer3, 50);
                 boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);
-                sheet_refresh(sht_back, cursor_x, 28, cursor_x + 8, 44);
+                sheet_refresh(sht_win, cursor_x, 28, cursor_x + 8, 44);
             }
         }
     }
