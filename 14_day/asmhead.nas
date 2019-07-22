@@ -1,8 +1,17 @@
 ; haribote-os
 
+[INSTRSET "i486p"]
+
 BOTPAK  EQU     0x00280000  ; bootpackのload先
 DSKCAC  EQU     0x00100000  ; diskcash
 DSKCAC0 EQU     0x00008000  ; diskcash (real mode)
+
+VBEMODE EQU     0x105   ; 1024 * 768 * 8bit
+
+; 0x101 640 * 480 * 8bit
+; 0x103 800 * 600 * 8bit
+; 0x105 1024 * 768 * 8bit
+; 0x107 1280 * 1024 * 8bit
 
 ; BOOT_INFO
 CYLS    EQU     0x0ff0
@@ -15,7 +24,51 @@ VRAM    EQU     0x0ff8
     ORG 0xc200
 
 ; display mode
-    MOV AL, 0x13    ; VGA 320*200*8bit color
+; check VBE
+    MOV AX, 0x9000
+    MOV ES, AX
+    MOV DI, 0
+    MOV AX, 0x4f00
+    INT 0x10
+    CMP AX, 0x004f
+    JNE scrn320
+
+; check VBE version
+    MOV AX, [ES:DI+4]
+    CMP AX, 0x0200
+    JB scrn320
+
+; get display mode info
+    MOV CX, VBEMODE
+    MOV AX, 0x4f01
+    INT 0x10
+    CMP AX, 0x004f
+    JNE scrn320
+
+; check display mode
+    CMP BYTE [ES:DI+0x19], 8
+    JNE scrn320
+    CMP BYTE [ES:DI+0x1b], 4
+    JNE scrn320
+    MOV AX, [ES:DI+0x00]
+    AND AX, 0x0080
+    JZ scrn320
+
+; change display mode
+    MOV BX, VBEMODE+0x4000
+    MOV AX, 0x4f02
+    INT 0x10
+    MOV BYTE [VMODE], 8
+    MOV AX, [ES:DI+0x12]
+    MOV	[SCRNX], AX
+    MOV	AX, [ES:DI+0x14]
+    MOV	[SCRNY], AX
+    MOV EAX, [ES:DI+0x28]
+    MOV	[VRAM], EAX
+    JMP keystatus
+    
+scrn320:
+    MOV AL, 0x13
     MOV AH, 0x00
     INT 0x10
     MOV BYTE [VMODE], 8
@@ -24,6 +77,7 @@ VRAM    EQU     0x0ff8
     MOV DWORD [VRAM], 0x000a0000
 
 ; keyboad
+keystatus:
     MOV AH, 0x02
     INT 0x16    ; keyboad BIOS
     MOV [LEDS], AL
