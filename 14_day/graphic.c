@@ -60,7 +60,7 @@ void init_palette(void)
     return;
 }
 
-void init_mouse_coursor8(char *mouse, char bc)
+void init_mouse_cursor8(char *mouse, char bc)
 {
     static char cursor[16][16] = {
         "**************..",

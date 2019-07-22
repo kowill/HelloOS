@@ -69,7 +69,7 @@ void putblock8_8(char *vram, int vxsize, int pxsize, int pysize, int px0, int py
 
 void show_boxes();
 void init_screen(char *vram, int xsize, int ysize);
-void init_mouse_coursor8(char *mouse, char bc);
+void init_mouse_cursor8(char *mouse, char bc);
 
 /* dsctbl.c */
 #define AR_INTGATE32 0x008e
