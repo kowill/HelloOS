@@ -193,6 +193,7 @@ void sheet_free(struct SHEET *sht);
 
 struct TIMER
 {
+    struct TIMER *next;
     unsigned int timeout, flags;
     struct FIFO32 *fifo;
     unsigned char data;
@@ -201,7 +202,7 @@ struct TIMER
 struct TIMERCTL
 {
     unsigned int count, next, using;
-    struct TIMER *timers[MAX_TIMER];
+    struct TIMER *t0;
     struct TIMER timers0[MAX_TIMER];
 };
 
