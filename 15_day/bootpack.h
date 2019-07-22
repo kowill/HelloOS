@@ -40,6 +40,8 @@ void asm_inthandler2c(void);
 int load_cr0(void);
 void store_cr0(int cr0);
 unsigned int memtest_sub(unsigned int start, unsigned int end);
+void load_tr(int tr);
+void taskswitch4(void);
 
 /* graphic.c */
 #define COL8_000000 0
@@ -72,7 +74,9 @@ void init_screen(char *vram, int xsize, int ysize);
 void init_mouse_cursor8(char *mouse, char bc);
 
 /* dsctbl.c */
+#define AR_TSS32 0x0089
 #define AR_INTGATE32 0x008e
+#define ADR_GDT 0x00270000
 
 struct SEGMENT_DESCRIPTOR
 {
