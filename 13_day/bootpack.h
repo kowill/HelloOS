@@ -15,8 +15,6 @@ struct MEMMAN
     struct MEMFREEINFO free[MEMMAN_FREES];
 };
 
-void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
-
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x0000ff0
 
