@@ -1,7 +1,5 @@
 #include "bootpack.h"
 
-struct FIFO8 keyfifo, mousefifo;
-
 void init_pic(void)
 {
     io_out8(PIC0_IMR, 0xff); /* 割り込み受け付けない */
