@@ -20,7 +20,7 @@ void HariMain(void)
     struct FIFO32 fifo;
     struct TIMER *timer, *timer2, *timer3;
     int cursor_x, cursor_c;
-    struct TASK *task_b;
+    struct TASK *task_a, *task_b;
 
     static char keytable[0x54] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0, 0,
@@ -34,7 +34,7 @@ void HariMain(void)
     init_pic();
     io_sti();
 
-    fifo32_init(&fifo, sizeof(fifobuf) / sizeof(int), fifobuf);
+    fifo32_init(&fifo, sizeof(fifobuf) / sizeof(int), fifobuf, 0);
     init_pit();
     io_out8(PIC0_IMR, 0xf8); // PITとPIC1とキーボードを許可 (11111000)
     io_out8(PIC1_IMR, 0xef);
@@ -88,7 +88,9 @@ void HariMain(void)
     sprintf(s, "mem: %dMB  free: %dKB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc_sht(sht_back, 0, 48, COL8_FFFFFF, COL8_008484, s, 40);
 
-    task_init(memman);
+    task_a = task_init(memman);
+    fifo.task = task_a;
+
     task_b = task_alloc();
     task_b->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
     task_b->tss.eip = (int)&task_b_main;
@@ -108,7 +110,8 @@ void HariMain(void)
         io_cli();
         if (fifo32_status(&fifo) == 0)
         {
-            io_stihlt();
+            task_sleep(task_a);
+            io_sti();
         }
         else
         {
@@ -271,7 +274,7 @@ void task_b_main(struct SHEET *sht_back)
     int i, fifobuf[128], count = 0, count0 = 0;
     char s[12];
 
-    fifo32_init(&fifo, 128, fifobuf);
+    fifo32_init(&fifo, 128, fifobuf, 0);
     timer_put = timer_alloc();
     timer_init(timer_put, &fifo, 1);
     timer_settime(timer_put, 1);
