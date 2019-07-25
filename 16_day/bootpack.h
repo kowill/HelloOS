@@ -221,6 +221,9 @@ void timer_settime(struct TIMER *timer, unsigned int timeout);
 /* mtask.c */
 #define MAX_TASKS 1000
 #define TASK_GDT0 3
+#define TASK_FLG_NOUSE 0
+#define TASK_FLG_USING 1
+#define TASK_FLG_RUNNING 2
 
 struct TSS32
 {
@@ -233,6 +236,7 @@ struct TSS32
 struct TASK
 {
     int sel, flags; // sel -> gdt number
+    int priority;
     struct TSS32 tss;
 };
 
@@ -247,6 +251,6 @@ struct TASKCTL
 extern struct TIMER *task_timer;
 struct TASK *task_init(struct MEMMAN *memman);
 struct TASK *task_alloc(void);
-void task_run(struct TASK *task);
+void task_run(struct TASK *task, int priority);
 void task_switch(void);
 void task_sleep(struct TASK *task);

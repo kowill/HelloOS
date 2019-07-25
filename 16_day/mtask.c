@@ -11,12 +11,13 @@ struct TASK *task_init(struct MEMMAN *memman)
     taskctl = (struct TASKCTL *)memman_alloc_4k(memman, sizeof(struct TASKCTL));
     for (i = 0; i < MAX_TASKS; i++)
     {
-        taskctl->tasks0[i].flags = 0;
+        taskctl->tasks0[i].flags = TASK_FLG_NOUSE;
         taskctl->tasks0[i].sel = (TASK_GDT0 + i) * 8;
         set_segmdesc(gdt + TASK_GDT0 + i, 103, (int)&taskctl->tasks0[i].tss, AR_TSS32);
     }
     task = task_alloc();
-    task->flags = 2;
+    task->flags = TASK_FLG_RUNNING;
+    task->priority = 2; // 0.02秒
     taskctl->running = 1;
     taskctl->now = 0;
     taskctl->tasks[0] = task;
@@ -32,10 +33,10 @@ struct TASK *task_alloc(void)
     struct TASK *task;
     for (i = 0; i < MAX_TASKS; i++)
     {
-        if (taskctl->tasks0[i].flags == 0)
+        if (taskctl->tasks0[i].flags == TASK_FLG_NOUSE)
         {
             task = &taskctl->tasks0[i];
-            task->flags = 1;
+            task->flags = TASK_FLG_USING;
             task->tss.eflags = 0x00000202;
             task->tss.eax = 0;
             task->tss.eax = 0;
@@ -60,9 +61,12 @@ struct TASK *task_alloc(void)
     return 0;
 }
 
-void task_run(struct TASK *task)
+void task_run(struct TASK *task, int priority)
 {
-    task->flags = 2;
+    if (0 < priority)
+        task->priority = priority;
+
+    task->flags = TASK_FLG_RUNNING;
     taskctl->tasks[taskctl->running] = task;
     taskctl->running++;
     return;
@@ -70,13 +74,15 @@ void task_run(struct TASK *task)
 
 void task_switch(void)
 {
-    timer_settime(task_timer, 2);
+    struct TASK *task;
+    taskctl->now++;
+    if (taskctl->now == taskctl->running)
+        taskctl->now = 0;
+    task = taskctl->tasks[taskctl->now];
+    timer_settime(task_timer, task->priority);
     if (taskctl->running >= 2)
     {
-        taskctl->now++;
-        if (taskctl->now == taskctl->running)
-            taskctl->now = 0;
-        farjmp(0, taskctl->tasks[taskctl->now]->sel);
+        farjmp(0, task->sel);
     }
     return;
 }
@@ -85,7 +91,7 @@ void task_sleep(struct TASK *task)
 {
     int i;
     char ts = 0;
-    if (task->flags == 2)
+    if (task->flags == TASK_FLG_RUNNING)
     {
         if (task == taskctl->tasks[taskctl->now])
             ts = 1;
@@ -99,7 +105,7 @@ void task_sleep(struct TASK *task)
             taskctl->now--;
         for (; i < taskctl->running; i++)
             taskctl->tasks[i] = taskctl->tasks[i + 1];
-        task->flags = 1;
+        task->flags = TASK_FLG_USING;
         if (ts != 0)
         {
             if (taskctl->now >= taskctl->running)
