@@ -116,9 +116,6 @@ void HariMain(void)
     sheet_updown(sht_cons, 1);
     sheet_updown(sht_win, 2);
     sheet_updown(sht_mouse, 3);
-    putfonts8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, "HELLO, WORLD!!", 15);
-    sprintf(s, "mem: %dMB  free: %dKB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
-    putfonts8_asc_sht(sht_back, 0, 48, COL8_FFFFFF, COL8_008484, s, 40);
 
     fifo32_put(&keycmd, KEYCMD_LED);
     fifo32_put(&keycmd, key_leds);
@@ -144,8 +141,6 @@ void HariMain(void)
             // keyboard
             if (256 <= i && i <= 511)
             {
-                sprintf(s, "%02X", i - 256);
-                putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
                 if (i < 0x80 + 256)
                 {
                     if (key_shift == 0)
@@ -267,14 +262,6 @@ void HariMain(void)
             {
                 if (mouse_decode(&mdec, i - 512) != 0)
                 {
-                    sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
-                    if ((mdec.btn & 0x01) != 0)
-                        s[1] = 'L';
-                    if ((mdec.btn & 0x02) != 0)
-                        s[3] = 'R';
-                    if ((mdec.btn & 0x04) != 0)
-                        s[2] = 'C';
-                    putfonts8_asc_sht(sht_back, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
                     /* mouse cursor */
                     mx += mdec.x;
                     my += mdec.y;
@@ -286,8 +273,6 @@ void HariMain(void)
                         mx = binfo->scrnx - 1;
                     if (my > binfo->scrny - 1)
                         my = binfo->scrny - 1;
-                    sprintf(s, "(%3d, %3d)", mx, my);
-                    putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 10);
                     sheet_slide(sht_mouse, mx, my);
                     if ((mdec.btn & 0x01) != 0)
                         sheet_slide(sht_win, mx - 80, my - 8);
