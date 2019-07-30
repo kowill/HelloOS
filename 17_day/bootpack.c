@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "bootpack.h"
 
+#define KEYCMD_LED 0xed
+
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
 void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
@@ -12,15 +14,15 @@ void HariMain(void)
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
     char s[40];
-    int i, mx, my, fifobuf[128];
+    int i, mx, my, fifobuf[128], keycmd_buf[128];
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
     struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons;
     unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_cons;
-    struct FIFO32 fifo;
+    struct FIFO32 fifo, keycmd;
     struct TIMER *timer;
-    int cursor_x, cursor_c, key_to = 0, key_shift = 0;
+    int cursor_x, cursor_c, key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
     struct TASK *task_a, *task_cons;
 
     static char keytable0[0x80] = {
@@ -47,6 +49,7 @@ void HariMain(void)
     io_sti();
 
     fifo32_init(&fifo, sizeof(fifobuf) / sizeof(int), fifobuf, 0);
+    fifo32_init(&keycmd, sizeof(keycmd_buf) / sizeof(int), keycmd_buf, 0);
     init_pit();
     init_keyboard(&fifo, 256);
     enable_mouse(&fifo, 512, &mdec);
@@ -117,8 +120,17 @@ void HariMain(void)
     sprintf(s, "mem: %dMB  free: %dKB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc_sht(sht_back, 0, 48, COL8_FFFFFF, COL8_008484, s, 40);
 
+    fifo32_put(&keycmd, KEYCMD_LED);
+    fifo32_put(&keycmd, key_leds);
+
     for (;;)
     {
+        if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0)
+        {
+            keycmd_wait = fifo32_get(&keycmd);
+            wait_KBC_sendready();
+            io_out8(PORT_KEYDAT, keycmd_wait);
+        }
         io_cli();
         if (fifo32_status(&fifo) == 0)
         {
@@ -143,6 +155,12 @@ void HariMain(void)
                 }
                 else
                     s[0] = 0;
+                if ('A' <= s[0] && s[0] <= 'Z')
+                {
+                    if (((key_leds & 4) == 0 && key_shift == 0) ||
+                        ((key_leds & 4) != 0 && key_shift != 0))
+                        s[0] += 0x20;
+                }
                 if (s[0] != 0)
                 {
                     if (key_to == 0)
@@ -200,6 +218,36 @@ void HariMain(void)
                     key_shift &= ~1;
                 if (i == 256 + 0xb6)
                     key_shift &= ~2;
+                // caps lock
+                if (i == 256 + 0x3a)
+                {
+                    key_leds ^= 4;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                // num lock
+                if (i == 256 + 0x45)
+                {
+                    key_leds ^= 2;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                // scroll lock
+                if (i == 256 + 0x46)
+                {
+                    key_leds ^= 1;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                if (i == 256 + 0xfa)
+                {
+                    keycmd_wait = -1;
+                }
+                if (i == 256 + 0xfe)
+                {
+                    wait_KBC_sendready();
+                    io_out8(PORT_KEYDAT, keycmd_wait);
+                }
                 boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);
                 sheet_refresh(sht_win, cursor_x, 28, cursor_x + 8, 44);
             }
