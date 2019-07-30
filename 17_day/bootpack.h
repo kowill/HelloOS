@@ -239,6 +239,7 @@ struct TASK
 {
     int sel, flags; // sel -> gdt number
     int level, priority;
+    struct FIFO32 fifo;
     struct TSS32 tss;
 };
 
