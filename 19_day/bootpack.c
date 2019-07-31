@@ -440,7 +440,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
                 cursor_c = COL8_FFFFFF;
             if (i == 3)
             {
-                boxfill8(sheet->buf, sheet->bxsize, COL8_000000, cursor_x, 28, cursor_x + 7, 43);
+                boxfill8(sheet->buf, sheet->bxsize, COL8_000000, cursor_x, cursor_y, cursor_x + 7, 43);
                 cursor_c = -1;
             }
             if (256 <= i && i <= 511)
@@ -449,7 +449,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
                 {
                     if (cursor_x > 16)
                     {
-                        putfonts8_asc_sht(sheet, cursor_x, 28, COL8_FFFFFF, COL8_000000, " ", 1);
+                        putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, " ", 1);
                         cursor_x -= 8;
                     }
                 }
