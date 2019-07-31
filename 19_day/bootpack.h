@@ -15,14 +15,6 @@ struct MEMMAN
     struct MEMFREEINFO free[MEMMAN_FREES];
 };
 
-struct FILEINFO
-{
-    unsigned char name[8], ext[3], type;
-    char reserve[10];
-    unsigned short time, date, clustno;
-    unsigned int size;
-};
-
 /* asmhead.nas */
 #define ADR_BOOTINFO 0x00000ff0
 #define ADR_DISKING 0x00100000
@@ -278,3 +270,24 @@ void task_add(struct TASK *task);
 void task_remove(struct TASK *task);
 void task_switchsub(void);
 void task_idol(void);
+
+/* window.c */
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
+void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
+void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
+void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
+
+/* console.c */
+void console_task(struct SHEET *sheet, unsigned int memtotal);
+int cons_newline(int cursor_y, struct SHEET *sheet);
+
+/* file.c */
+struct FILEINFO
+{
+    unsigned char name[8], ext[3], type;
+    char reserve[10];
+    unsigned short time, date, clustno;
+    unsigned int size;
+};
+void file_readfat(int *fat, unsigned char *img);
+void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
