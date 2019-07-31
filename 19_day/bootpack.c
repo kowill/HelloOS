@@ -113,7 +113,7 @@ void HariMain(void)
 
     sheet_slide(sht_back, 0, 0);
     sheet_slide(sht_cons, 32, 4);
-    sheet_slide(sht_win, 8, 56);
+    sheet_slide(sht_win, 64, 100);
     sheet_slide(sht_mouse, mx, my);
     sheet_updown(sht_back, 0);
     sheet_updown(sht_cons, 1);
