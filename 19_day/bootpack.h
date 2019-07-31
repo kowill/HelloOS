@@ -77,6 +77,7 @@ void init_mouse_cursor8(char *mouse, char bc);
 /* dsctbl.c */
 #define AR_TSS32 0x0089
 #define AR_INTGATE32 0x008e
+#define AR_CODE32_ER 0x409a
 #define ADR_GDT 0x00270000
 
 struct SEGMENT_DESCRIPTOR

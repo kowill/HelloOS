@@ -10,6 +10,9 @@ New-Item tmp -ItemType Directory
 # nas 2 bin
 @("ipl","asmhead") | %{bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).bin"}
 
+# nas 2 hrb
+@("hlt") | %{bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).hrb"}
+
 # c 2 gas
 Get-ChildItem $targetPath -recurse -include *.c | %{bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName}
 
