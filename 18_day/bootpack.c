@@ -399,6 +399,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
     int i, fifobuf[128], cursor_x = 16, cursor_y = 28, cursor_c = -1, x, y;
     char s[30], cmdline[30];
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
+    struct FILEINFO *finfo = (struct FILEINFO *)(ADR_DISKING + 0x002600);
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
     timer = timer_alloc();
@@ -475,6 +476,29 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
                                 sheet->buf[x + y * sheet->bxsize] = COL8_000000;
                         sheet_refresh(sheet, 8, 28, 8 + 240, 29 + 128);
                         cursor_y = 28;
+                    }
+                    else if (strcmp(cmdline, "dir") == 0)
+                    {
+                        for (x = 0; x < 224; x++)
+                        {
+                            if (finfo[x].name[0] == 0x00)
+                                break;
+                            if (finfo[x].name[0] != 0xe5)
+                            {
+                                if ((finfo[x].type & 0x18) == 0)
+                                {
+                                    sprintf(s, "filename.ext %7d", finfo[x].size);
+                                    for (y = 0; y < 8; y++)
+                                        s[y] = finfo[x].name[y];
+                                    s[9] = finfo[x].ext[0];
+                                    s[10] = finfo[x].ext[1];
+                                    s[11] = finfo[x].ext[2];
+                                    putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, s, 30);
+                                    cursor_y = cons_newline(cursor_y, sheet);
+                                }
+                            }
+                        }
+                        cursor_y = cons_newline(cursor_y, sheet);
                     }
                     else if (cmdline[0] != 0)
                     {

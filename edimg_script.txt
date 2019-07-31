@@ -1,4 +1,6 @@
 imgin:bin\tolset\z_tools\fdimg0at.tek
 wbinimg src:tmp\ipl.bin len:512 from:0 to:0
 copy from:tmp\haribote.sys to:@:
+copy from:readme.md to:@:
+copy from:build.ps1 to:@:
 imgout:boot.vfd

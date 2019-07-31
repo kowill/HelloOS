@@ -15,8 +15,17 @@ struct MEMMAN
     struct MEMFREEINFO free[MEMMAN_FREES];
 };
 
+struct FILEINFO
+{
+    unsigned char name[8], ext[3], type;
+    char reserve[10];
+    unsigned short time, date, clustno;
+    unsigned int size;
+};
+
 /* asmhead.nas */
-#define ADR_BOOTINFO 0x0000ff0
+#define ADR_BOOTINFO 0x00000ff0
+#define ADR_DISKING 0x00100000
 
 struct BOOTINFO
 {
