@@ -40,7 +40,7 @@ cmd /c copy /B tmp\asmhead.bin+tmp\bootpack.hrb tmp\haribote.sys
 
 # edimg_script
 $scriptPath = "edimg_script.txt"
-Remove-Item $scriptPath
+Out-File $scriptPath
 Add-Content $scriptPath "imgin:bin\tolset\z_tools\fdimg0at.tek"
 Add-Content $scriptPath "wbinimg src:tmp\ipl.bin len:512 from:0 to:0"
 Add-Content $scriptPath "copy from:tmp\haribote.sys to:@:"
