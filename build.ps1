@@ -12,24 +12,40 @@ New-Item tmp\app -ItemType Directory
 @("ipl", "asmhead") | % { bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).bin" }
 
 # nas(app) 2 hrb
-Get-ChildItem ($targetPath + '\app') -recurse -include *.nas | % { bin\tolset\z_tools\nask.exe $_.FullName "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).hrb" }
+Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe $_.FullName "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).hrb" }
+
+# app_c 2 hrb
+$appTargest = @(
+    @{Name = "a"; Link = @("a", "a_nask") },
+    @{Name = "hello3"; Link = @("hello3", "a_nask") }
+)
+Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
+Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
+Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.nas | Copy-Item -Destination "tmp\app"
+Get-ChildItem "tmp\app" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj" }
+$appTargest |
+% {
+    $linkTargets = $_.Link | % { "tmp\app\$($_).obj" }
+    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "map:tmp\app\$($_.Name).map" $linkTargets 
+    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" 0 
+}
 
 # c 2 gas
-Get-ChildItem $targetPath -recurse -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
+Get-ChildItem $targetPath -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 
 # gas 2 nas
-Get-ChildItem "tmp\" -recurse -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
+Get-ChildItem "tmp\" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
 
 # nas 2 obj
 @("naskfunc") | % { bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).obj" }
-Get-ChildItem "tmp\" -recurse -include *.nas | % { bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj" }
+Get-ChildItem "tmp\" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj" }
 
 # font
 bin\tolset\z_tools\makefont.exe "$($targetPath)\hankaku.txt" tmp\hankaku.bin
 bin\tolset\z_tools\bin2obj.exe tmp\hankaku.bin tmp\hankaku.obj _hankaku
 
 # obj 2 bim
-$obj = Get-ChildItem "tmp\" -recurse -include *.obj | % { $_.FullName };
+$obj = Get-ChildItem "tmp\" -depth 0 -include *.obj | % { $_.FullName };
 bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" out:tmp\bootpack.bim stack:3136k map:tmp\bootpack.map $obj
 
 # bim 2 hrb
@@ -46,7 +62,7 @@ Add-Content $scriptPath "wbinimg src:tmp\ipl.bin len:512 from:0 to:0"
 Add-Content $scriptPath "copy from:tmp\haribote.sys to:@:"
 Add-Content $scriptPath "copy from:readme.md to:@:"
 Add-Content $scriptPath "copy from:build.ps1 to:@:"
-Get-ChildItem "tmp\app" -recurse -include *.hrb | % { Add-Content $scriptPath ("copy from:tmp\app\$($_.Name) to:@:") }
+Get-ChildItem "tmp\app" -depth 0 -include *.hrb | % { Add-Content $scriptPath ("copy from:tmp\app\$($_.Name) to:@:") }
 Add-Content $scriptPath "imgout:boot.vfd"
 
 # edimg
