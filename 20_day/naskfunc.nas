@@ -13,7 +13,7 @@
     GLOBAL _asm_inthandler21, _asm_inthandler2c, _asm_inthandler20
     GLOBAL _load_cr0, _store_cr0
     GLOBAL _memtest_sub
-    GLOBAL _load_tr, _farjmp, _asm_cons_putchar
+    GLOBAL _load_tr, _farjmp, _asm_cons_putchar, _farcall
     EXTERN _inthandler21, _inthandler2c, _inthandler20, _cons_putchar
 
 [SECTION .text]
@@ -198,3 +198,7 @@ _asm_cons_putchar:
     CALL _cons_putchar
     ADD ESP, 12
     RETF
+
+_farcall:   ; void farcall(int eip, int cs);
+    CALL FAR [ESP+4]
+    RET

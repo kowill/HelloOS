@@ -43,6 +43,7 @@ void store_cr0(int cr0);
 unsigned int memtest_sub(unsigned int start, unsigned int end);
 void load_tr(int tr);
 void farjmp(int eip, int cs);
+void farcall(int eip, int cs);
 
 /* graphic.c */
 #define COL8_000000 0
