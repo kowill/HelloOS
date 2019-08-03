@@ -46,6 +46,7 @@ void farjmp(int eip, int cs);
 void farcall(int eip, int cs);
 void asm_cons_putchar(void);
 void asm_hrb_api(void);
+void start_app(int eip, int cs, int esp, int ds);
 
 /* graphic.c */
 #define COL8_000000 0
@@ -80,6 +81,7 @@ void init_mouse_cursor8(char *mouse, char bc);
 /* dsctbl.c */
 #define AR_TSS32 0x0089
 #define AR_INTGATE32 0x008e
+#define AR_DATA32_RW 0x4092
 #define AR_CODE32_ER 0x409a
 #define ADR_GDT 0x00270000
 
