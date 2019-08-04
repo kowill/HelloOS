@@ -18,6 +18,7 @@ void HariMain(void)
     struct TIMER *timer;
     int cursor_x, cursor_c, key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
     struct TASK *task_a, *task_cons;
+    struct CONSOLE *cons;
 
     static char keytable0[0x80] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0, 0,
@@ -248,6 +249,15 @@ void HariMain(void)
                 {
                     wait_KBC_sendready();
                     io_out8(PORT_KEYDAT, keycmd_wait);
+                }
+                if (i == 256 + 0x3b && key_shift != 0 && task_cons->tss.ss0 != 0) // shift +F1
+                {
+                    cons = (struct CONSOLE *)*((int *)0x0fec);
+                    cons_putstr0(cons, "\nBreak(key) : \n");
+                    io_cli();
+                    task_cons->tss.eax = (int)&(task_cons->tss.esp0);
+                    task_cons->tss.eip = (int)asm_end_app;
+                    io_sti();
                 }
                 if (cursor_c >= 0)
                     boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);

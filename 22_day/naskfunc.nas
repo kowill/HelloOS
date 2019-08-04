@@ -14,7 +14,7 @@
     GLOBAL _load_cr0, _store_cr0
     GLOBAL _memtest_sub
     GLOBAL _load_tr, _farjmp, _asm_cons_putchar, _farcall, _asm_hrb_api
-    GLOBAL _start_app, _asm_inthandler0d, _asm_inthandler0c
+    GLOBAL _start_app, _asm_inthandler0d, _asm_inthandler0c, _asm_end_app
     EXTERN _inthandler21, _inthandler2c, _inthandler20, _cons_putchar, _hrb_api
     EXTERN _inthandler0d, _inthandler0c
 
@@ -290,3 +290,9 @@ _start_app:     ; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0
     PUSH ECX
     PUSH EAX
     RETF
+
+_asm_end_app:
+    MOV ESP, [EAX]
+    MOV DWORD [EAX+4], 0
+    POPAD
+    RET
