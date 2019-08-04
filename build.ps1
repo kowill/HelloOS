@@ -17,8 +17,7 @@ Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas | % { bin\tolset\z_
 # app_c 2 hrb
 $appTargest = @(
     @{Name = "a"; Link = @("a", "a_nask") },
-    @{Name = "hello3"; Link = @("hello3", "a_nask") },
-    @{Name = "crack1"; Link = @("crack1", "a_nask") }
+    @{Name = "hello3"; Link = @("hello3", "a_nask") }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
