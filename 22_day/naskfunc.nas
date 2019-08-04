@@ -14,8 +14,9 @@
     GLOBAL _load_cr0, _store_cr0
     GLOBAL _memtest_sub
     GLOBAL _load_tr, _farjmp, _asm_cons_putchar, _farcall, _asm_hrb_api
-    GLOBAL _start_app, _asm_inthandler0d
-    EXTERN _inthandler21, _inthandler2c, _inthandler20, _cons_putchar, _hrb_api, _inthandler0d
+    GLOBAL _start_app, _asm_inthandler0d, _asm_inthandler0c
+    EXTERN _inthandler21, _inthandler2c, _inthandler20, _cons_putchar, _hrb_api
+    EXTERN _inthandler0d, _inthandler0c
 
 [SECTION .text]
 _io_hlt:        ; void io_hlt(void);
@@ -152,6 +153,26 @@ _asm_inthandler0d:
     MOV DS, AX
     MOV ES, AX
     CALL _inthandler0d
+    CMP EAX, 0
+    JNE end_app
+    POP EAX
+    POPAD
+    POP DS
+    POP ES
+    ADD ESP, 4
+    IRETD
+
+_asm_inthandler0c:
+    STI
+    PUSH ES
+    PUSH DS
+    PUSHAD
+    MOV EAX, ESP
+    PUSH EAX
+    MOV AX, SS
+    MOV DS, AX
+    MOV ES, AX
+    CALL _inthandler0c
     CMP EAX, 0
     JNE end_app
     POP EAX
