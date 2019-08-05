@@ -27,11 +27,12 @@ Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas |
 
 # app_c 2 hrb
 $appTargest = @(
-    @{Name = "a"; Link = @("a", "a_nask") },
-    @{Name = "hello3"; Link = @("hello3", "a_nask") },
-    @{Name = "hello4"; Link = @("hello4", "a_nask") },
-    @{Name = "winhelo"; Link = @("winhelo", "a_nask") },
-    @{Name = "winhelo2"; Link = @("winhelo2", "a_nask") }
+    @{Name = "a"; Link = @("a", "a_nask") ; HeapSize = "0" },
+    @{Name = "hello3"; Link = @("hello3", "a_nask"); HeapSize = "0" },
+    @{Name = "hello4"; Link = @("hello4", "a_nask"); HeapSize = "0" },
+    @{Name = "winhelo"; Link = @("winhelo", "a_nask"); HeapSize = "0" },
+    @{Name = "winhelo2"; Link = @("winhelo2", "a_nask"); HeapSize = "0" },
+    @{Name = "winhelo3"; Link = @("winhelo3", "a_nask"); HeapSize = "40k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
@@ -41,7 +42,7 @@ $appTargest |
 % {
     $linkTargets = $_.Link | % { "tmp\app\$($_).obj" }
     bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:1k" "map:tmp\app\$($_.Name).map" $linkTargets 
-    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" 0 
+    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" "$($_.HeapSize)"
 }
 
 # c 2 gas
