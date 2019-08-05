@@ -93,7 +93,7 @@ putloop:
     CMP AL, 0
     JE  fin
     MOV AH, 0x0e
-    MOV BH, 15
+    MOV BX, 15
     INT 0x10
     JMP putloop
 

@@ -154,7 +154,7 @@ _asm_inthandler0d:
     MOV ES, AX
     CALL _inthandler0d
     CMP EAX, 0
-    JNE end_app
+    JNE _asm_end_app
     POP EAX
     POPAD
     POP DS
@@ -174,7 +174,7 @@ _asm_inthandler0c:
     MOV ES, AX
     CALL _inthandler0c
     CMP EAX, 0
-    JNE end_app
+    JNE _asm_end_app
     POP EAX
     POPAD
     POP DS
@@ -259,14 +259,15 @@ _asm_hrb_api:
     MOV ES, AX
     CALL _hrb_api
     CMP EAX, 0
-    JNE end_app
+    JNE _asm_end_app
     ADD ESP, 32
     POPAD
     POP ES
     POP DS
     IRETD
-end_app:
+_asm_end_app:
     MOV ESP, [EAX]
+    MOV DWORD [EAX+4], 0
     POPAD
     RET
 
@@ -290,9 +291,3 @@ _start_app:     ; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0
     PUSH ECX
     PUSH EAX
     RETF
-
-_asm_end_app:
-    MOV ESP, [EAX]
-    MOV DWORD [EAX+4], 0
-    POPAD
-    RET

@@ -105,7 +105,7 @@ void sheet_updown(struct SHEET *sht, int height)
         }
         else
         {
-            for (h = old; h > height; h--)
+            for (h = ctl->top; h >= height; h--)
             {
                 ctl->sheets[h + 1] = ctl->sheets[h];
                 ctl->sheets[h + 1]->height = h + 1;
@@ -210,7 +210,7 @@ void sheet_refreshmap(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, in
             for (bx = bx0; bx < bx1; bx++)
             {
                 vx = sht->vx0 + bx;
-                if (buf[by * sht->bysize + bx] != sht->col_inv)
+                if (buf[by * sht->bxsize + bx] != sht->col_inv)
                     map[vy * ctl->xsize + vx] = sid;
             }
         }

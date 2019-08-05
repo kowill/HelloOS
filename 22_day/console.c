@@ -320,17 +320,29 @@ void cons_putstr1(struct CONSOLE *cons, char *s, int l)
 
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
 {
-    int cs_base = *((int *)0xfe8);
+    int ds_base = *((int *)0xfe8);
     struct TASK *task = task_now();
     struct CONSOLE *cons = (struct CONSOLE *)*((int *)0x0fec);
+    struct SHTCTL *shtctl = (struct SHTCTL *)*((int *)0x0fe4);
+    struct SHEET *sht;
+    int *reg = &eax + 1;
     if (edx == 1)
         cons_putchar(cons, eax & 0xff, 1);
     else if (edx == 2)
-        cons_putstr0(cons, (char *)ebx + cs_base);
+        cons_putstr0(cons, (char *)ebx + ds_base);
     else if (edx == 3)
-        cons_putstr1(cons, (char *)ebx + cs_base, ecx);
+        cons_putstr1(cons, (char *)ebx + ds_base, ecx);
     else if (edx == 4)
         return &(task->tss.esp0);
+    else if (edx == 5)
+    {
+        sht = sheet_alloc(shtctl);
+        sheet_setbuf(sht, (char *)ebx + ds_base, esi, edi, eax);
+        make_window8((char *)ebx + ds_base, esi, edi, (char *)ecx + ds_base, 0);
+        sheet_slide(sht, 100, 50);
+        sheet_updown(sht, 3);
+        reg[7] = (int)sht;
+    }
     return 0;
 }
 

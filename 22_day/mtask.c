@@ -56,17 +56,13 @@ struct TASK *task_alloc(void)
             task->flags = TASK_FLG_USING;
             task->tss.eflags = 0x00000202;
             task->tss.eax = 0;
-            task->tss.eax = 0;
             task->tss.ecx = 0;
             task->tss.edx = 0;
             task->tss.ebx = 0;
-            task->tss.esp = 0;
             task->tss.ebp = 0;
             task->tss.esi = 0;
             task->tss.edi = 0;
             task->tss.es = 0;
-            task->tss.cs = 0;
-            task->tss.ss = 0;
             task->tss.ds = 0;
             task->tss.fs = 0;
             task->tss.gs = 0;
