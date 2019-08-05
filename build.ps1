@@ -12,7 +12,18 @@ New-Item tmp\app -ItemType Directory
 @("ipl", "asmhead") | % { bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).bin" }
 
 # nas(app) 2 hrb
-Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe $_.FullName "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).hrb" }
+Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas | 
+% {
+    $appName = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+    if ($appName -in @("hello", "hello2")) {
+        bin\tolset\z_tools\nask.exe $_.FullName "tmp\app\$($appName).hrb" 
+    }
+    else {
+        bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\app\$($appName).obj"
+        bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($appName).bim" "stack:1k" "map:tmp\app\$($appName).map" "tmp\app\$($appName).obj"
+        bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($appName).bim" "tmp\app\$($appName).hrb" 0 
+    }
+}
 
 # app_c 2 hrb
 $appTargest = @(
@@ -30,7 +41,7 @@ Get-ChildItem "tmp\app" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.ex
 $appTargest |
 % {
     $linkTargets = $_.Link | % { "tmp\app\$($_).obj" }
-    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "map:tmp\app\$($_.Name).map" $linkTargets 
+    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:1k" "map:tmp\app\$($_.Name).map" $linkTargets 
     bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" 0 
 }
 
@@ -41,7 +52,7 @@ Get-ChildItem $targetPath -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe
 Get-ChildItem "tmp\" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
 
 # nas 2 obj
-@("naskfunc") | % { bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).obj"}
+@("naskfunc") | % { bin\tolset\z_tools\nask.exe "$($targetPath)\$($_).nas" "tmp\$($_).obj" }
 Get-ChildItem "tmp\" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj" }
 
 # font
