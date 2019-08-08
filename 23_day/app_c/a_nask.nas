@@ -9,7 +9,7 @@ GLOBAL _api_putstr0
 GLOBAL _api_openwin
 GLOBAL _api_putstrwin, _api_boxfilwin
 GLOBAL _api_initmalloc, _api_malloc, _api_free
-GLOBAL _api_point, _api_refreshwin, _api_linewin, _api_closewin
+GLOBAL _api_point, _api_refreshwin, _api_linewin, _api_closewin, _api_getkey
 
 [SECTION .text]
 
@@ -172,4 +172,10 @@ _api_closewin:      ; void api_closewin(int win);
     MOV EBX,[ESP+8]
     INT 0x40
     POP EBX
+    RET
+
+_api_getkey:        ; int api_getkey(int mode);
+    MOV EDX, 15
+    MOV EAX, [ESP+4]
+    INT 0x40
     RET
