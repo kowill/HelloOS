@@ -7,7 +7,7 @@ struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize
     ctl = (struct SHTCTL *)memman_alloc_4k(memman, sizeof(struct SHTCTL));
     if (ctl == 0)
         goto err;
-    
+
     ctl->map = (unsigned char *)memman_alloc_4k(memman, xsize * ysize);
     if (ctl->map == 0)
     {
@@ -38,6 +38,7 @@ struct SHEET *sheet_alloc(struct SHTCTL *ctl)
             sht = &ctl->sheetsO[i];
             sht->flags = SHEET_USE;
             sht->height = -1;
+            sht->task = 0;
             return sht;
         }
     }

@@ -179,6 +179,7 @@ struct SHEET
     unsigned char *buf;
     int bxsize, bysize, vx0, vy0, col_inv, height, flags;
     struct SHTCTL *ctl;
+    struct TASK *task;
 };
 
 struct SHTCTL
