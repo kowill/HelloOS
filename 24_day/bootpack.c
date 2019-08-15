@@ -3,6 +3,9 @@
 
 #define KEYCMD_LED 0xed
 
+int keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x);
+int keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c);
+
 void HariMain(void)
 {
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
@@ -12,11 +15,11 @@ void HariMain(void)
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
-    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons, *sht = 0;
+    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons, *sht = 0, *key_win;
     unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_cons;
     struct FIFO32 fifo, keycmd;
     struct TIMER *timer;
-    int cursor_x, cursor_c, key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
+    int cursor_x, cursor_c, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
     struct TASK *task_a, *task_cons;
     struct CONSOLE *cons;
 
@@ -114,6 +117,10 @@ void HariMain(void)
     sheet_updown(sht_win, 2);
     sheet_updown(sht_mouse, 3);
 
+    key_win = sht_win;
+    sht_cons->task = task_cons;
+    sht_cons->flags |= 0x20;
+
     fifo32_put(&keycmd, KEYCMD_LED);
     fifo32_put(&keycmd, key_leds);
 
@@ -135,6 +142,11 @@ void HariMain(void)
         {
             i = fifo32_get(&fifo);
             io_sti();
+            if (key_win->flags == 0) //input window is closed
+            {
+                key_win = shtctl->sheets[shtctl->top - 1];
+                cursor_c = keywin_on(key_win, sht_win, cursor_c);
+            }
             // keyboard
             if (256 <= i && i <= 511)
             {
@@ -153,9 +165,9 @@ void HariMain(void)
                         ((key_leds & 4) != 0 && key_shift != 0))
                         s[0] += 0x20;
                 }
-                if (s[0] != 0)
+                if (s[0] != 0) // charactor
                 {
-                    if (key_to == 0)
+                    if (key_win == sht_win)
                     {
                         if (cursor_x < 128)
                         {
@@ -166,12 +178,12 @@ void HariMain(void)
                     }
                     else
                     {
-                        fifo32_put(&task_cons->fifo, s[0] + 256);
+                        fifo32_put(&key_win->task->fifo, s[0] + 256);
                     }
                 }
                 if (i == 256 + 0x0e)
                 {
-                    if (key_to == 0)
+                    if (key_win == sht_win)
                     {
                         if (cursor_x > 8)
                         {
@@ -181,37 +193,24 @@ void HariMain(void)
                     }
                     else
                     {
-                        fifo32_put(&task_cons->fifo, 8 + 256);
+                        fifo32_put(&key_win->task->fifo, 8 + 256);
                     }
                 }
                 // enter
                 if (i == 256 + 0x1c)
                 {
-                    if (key_to != 0)
-                        fifo32_put(&task_cons->fifo, 10 + 256);
+                    if (key_win != sht_win)
+                        fifo32_put(&key_win->task->fifo, 10 + 256);
                 }
                 //tab
                 if (i == 256 + 0x0f)
                 {
-                    if (key_to == 0)
-                    {
-                        key_to = 1;
-                        make_wtitle8(buf_win, sht_win->bxsize, "task_a", 0);
-                        make_wtitle8(buf_cons, sht_cons->bxsize, "console", 1);
-                        cursor_c = -1;
-                        boxfill8(sht_win->buf, sht_win->bxsize, COL8_FFFFFF, cursor_x, 28, cursor_x + 7, 43);
-                        fifo32_put(&task_cons->fifo, 2);
-                    }
-                    else
-                    {
-                        key_to = 0;
-                        make_wtitle8(buf_win, sht_win->bxsize, "task_a", 1);
-                        make_wtitle8(buf_cons, sht_cons->bxsize, "console", 0);
-                        cursor_c = COL8_000000;
-                        fifo32_put(&task_cons->fifo, 3);
-                    }
-                    sheet_refresh(sht_win, 0, 0, sht_win->bxsize, 21);
-                    sheet_refresh(sht_cons, 0, 0, sht_cons->bxsize, 21);
+                    cursor_c = keywin_off(key_win, sht_win, cursor_c, cursor_x);
+                    j = key_win->height - 1;
+                    if (j == 0)
+                        j = shtctl->top - 1;
+                    key_win = shtctl->sheets[j];
+                    cursor_c = keywin_on(key_win, sht_win, cursor_c);
                 }
                 if (i == 256 + 0x2a)
                     key_shift |= 1;
@@ -305,7 +304,7 @@ void HariMain(void)
                                         }
                                         if (sht->bxsize - 21 <= x && x < sht->bxsize - 5 && 5 <= y && y < 19)
                                         {
-                                            if (sht->task != 0)
+                                            if ((sht->flags & 0x10) != 0)
                                             {
                                                 cons = (struct CONSOLE *)*((int *)0x0fec);
                                                 cons_putstr0(cons, "\nBreak(mouse) :\n");
@@ -358,4 +357,30 @@ void HariMain(void)
             }
         }
     }
+}
+
+int keywin_off(struct SHEET *key_win, struct SHEET *sht_win, int cur_c, int cur_x)
+{
+    change_wtitle8(key_win, 0);
+    if (key_win == sht_win)
+    {
+        cur_c = -1;
+        boxfill8(sht_win->buf, sht_win->bxsize, COL8_FFFFFF, cur_x, 28, cur_x + 7, 43);
+    }
+    else
+    {
+        if ((key_win->flags & 0x20) != 0)
+            fifo32_put(&key_win->task->fifo, 3);
+    }
+    return cur_c;
+}
+
+int keywin_on(struct SHEET *key_win, struct SHEET *sht_win, int cur_c)
+{
+    change_wtitle8(key_win, 1);
+    if (key_win == sht_win)
+        cur_c = COL8_000000;
+    else if ((key_win->flags & 0x20) != 0)
+        fifo32_put(&key_win->task->fifo, 2);
+    return cur_c;
 }
