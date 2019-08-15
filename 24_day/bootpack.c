@@ -8,11 +8,11 @@ void HariMain(void)
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
     char s[40];
-    int i, mx, my, fifobuf[128], keycmd_buf[128];
+    int i, mx, my, fifobuf[128], keycmd_buf[128], j, x, y;
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
-    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons;
+    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons, *sht;
     unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_cons;
     struct FIFO32 fifo, keycmd;
     struct TIMER *timer;
@@ -285,7 +285,22 @@ void HariMain(void)
                         my = binfo->scrny - 1;
                     sheet_slide(sht_mouse, mx, my);
                     if ((mdec.btn & 0x01) != 0)
-                        sheet_slide(sht_win, mx - 80, my - 8);
+                    {
+                        for (j = shtctl->top - 1; j > 0; j--)
+                        {
+                            sht = shtctl->sheets[j];
+                            x = mx - sht->vx0;
+                            y = my - sht->vy0;
+                            if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize)
+                            {
+                                if (sht->buf[y * sht->bxsize + x] != sht->col_inv)
+                                {
+                                    sheet_updown(sht, shtctl->top - 1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             else if (i <= 1)
