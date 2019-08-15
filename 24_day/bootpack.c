@@ -8,11 +8,11 @@ void HariMain(void)
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
     char s[40];
-    int i, mx, my, fifobuf[128], keycmd_buf[128], j, x, y;
+    int i, mx, my, fifobuf[128], keycmd_buf[128], j, x, y, mmx = -1, mmy = -1;
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
-    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons, *sht;
+    struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_cons, *sht = 0;
     unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_cons;
     struct FIFO32 fifo, keycmd;
     struct TIMER *timer;
@@ -286,20 +286,40 @@ void HariMain(void)
                     sheet_slide(sht_mouse, mx, my);
                     if ((mdec.btn & 0x01) != 0)
                     {
-                        for (j = shtctl->top - 1; j > 0; j--)
+                        if (mmx < 0)
                         {
-                            sht = shtctl->sheets[j];
-                            x = mx - sht->vx0;
-                            y = my - sht->vy0;
-                            if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize)
+                            for (j = shtctl->top - 1; j > 0; j--)
                             {
-                                if (sht->buf[y * sht->bxsize + x] != sht->col_inv)
+                                sht = shtctl->sheets[j];
+                                x = mx - sht->vx0;
+                                y = my - sht->vy0;
+                                if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize)
                                 {
-                                    sheet_updown(sht, shtctl->top - 1);
-                                    break;
+                                    if (sht->buf[y * sht->bxsize + x] != sht->col_inv)
+                                    {
+                                        sheet_updown(sht, shtctl->top - 1);
+                                        if (3 <= x && x < sht->bxsize - 3 && 3 <= y && y < 21)
+                                        {
+                                            mmx = mx;
+                                            mmy = my;
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        else
+                        {
+                            x = mx - mmx;
+                            y = my - mmy;
+                            sheet_slide(sht, sht->vx0 + x, sht->vy0 + y);
+                            mmx = mx;
+                            mmy = my;
+                        }
+                    }
+                    else
+                    {
+                        mmx = -1;
                     }
                 }
             }
