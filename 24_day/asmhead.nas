@@ -99,7 +99,6 @@ keystatus:
     CALL waitkbdout
 
 ; mov protect mode
-[INSTRSET "i486p"]  ; 486命令
     LGDT [GDTR0]
     MOV EAX, CR0
     AND EAX, 0x7fffffff     ; ページング禁止(bit31 -> 0)

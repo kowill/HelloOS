@@ -212,7 +212,7 @@ struct TIMER
     struct TIMER *next;
     unsigned int timeout, flags;
     struct FIFO32 *fifo;
-    unsigned char data;
+    int data;
 };
 
 struct TIMERCTL
@@ -228,6 +228,7 @@ void inthandler20(int *esp);
 struct TIMER *timer_alloc(void);
 void timer_init(struct TIMER *timer, struct FIFO32 *fifo, int data);
 void timer_settime(struct TIMER *timer, unsigned int timeout);
+void timer_free(struct TIMER *timer);
 
 /* mtask.c */
 #define MAX_TASKS 1000
