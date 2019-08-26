@@ -11,7 +11,7 @@ void HariMain(void)
     struct BOOTINFO *binfo = (struct BOOTINFO *)ADR_BOOTINFO;
     struct MOUSE_DEC mdec;
     char s[40];
-    int i, mx, my, fifobuf[128], keycmd_buf[128], j, x, y, mmx = -1, mmy = -1, *cons_fifo[2];
+    int i, mx, my, fifobuf[128], keycmd_buf[128], j, x, y, mmx = -1, mmy = -1, *cons_fifo[2], mmx2 = 0;
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
@@ -268,6 +268,7 @@ void HariMain(void)
                                         {
                                             mmx = mx;
                                             mmy = my;
+                                            mmx2 = sht->vx0;
                                         }
                                         if (sht->bxsize - 21 <= x && x < sht->bxsize - 5 && 5 <= y && y < 19)
                                         {
@@ -290,8 +291,7 @@ void HariMain(void)
                         {
                             x = mx - mmx;
                             y = my - mmy;
-                            sheet_slide(sht, sht->vx0 + x, sht->vy0 + y);
-                            mmx = mx;
+                            sheet_slide(sht, (mmx2 + x + 2) & ~3, sht->vy0 + y);
                             mmy = my;
                         }
                     }
