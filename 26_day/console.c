@@ -166,6 +166,8 @@ void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, unsigned int mem
         cmd_dir(cons);
     else if (strncmp(cmdline, "type ", 5) == 0)
         cmd_type(cons, fat, cmdline);
+    else if (strcmp(cmdline, "exit") == 0)
+        cmd_exit(cons, fat);
     else if (cmdline[0] != 0)
     {
         if (cmd_app(cons, fat, cmdline) == 0)
@@ -535,4 +537,19 @@ void hrb_api_linewin(struct SHEET *sht, int x0, int y0, int x1, int y1, int col)
         y += dy;
     }
     return;
+}
+
+void cmd_exit(struct CONSOLE *cons, int *fat)
+{
+    struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
+    struct TASK *task = task_now();
+    struct SHTCTL *shtctl = (struct SHTCTL *)*((int *)0x0fe4);
+    struct FIFO32 *fifo = (struct FIFO32 *)*((int *)0x0fec);
+    timer_cancel(cons->timer);
+    memman_free_4k(memman, (int)fat, 4 * 2880);
+    io_cli();
+    fifo32_put(fifo, cons->sht - shtctl->sheetsO + 768); /* 768 - 1023 */
+    io_sti();
+    for (;;)
+        task_sleep(task);
 }
