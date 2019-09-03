@@ -18,7 +18,7 @@ void HariMain(void)
     unsigned int memtotal;
     struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
     struct SHTCTL *shtctl;
-    struct SHEET *sht_back, *sht_mouse, *sht = 0, *key_win;
+    struct SHEET *sht_back, *sht_mouse, *sht = 0, *key_win, *sht2;
     unsigned char *buf_back, buf_mouse[256];
     struct FIFO32 fifo, keycmd;
     int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
@@ -296,6 +296,10 @@ void HariMain(void)
                                             else
                                             {
                                                 task = sht->task;
+                                                sheet_updown(sht, -1);
+                                                keywin_off(key_win);
+                                                key_win = shtctl->sheets[shtctl->top - 1];
+                                                keywin_on(key_win);
                                                 io_cli();
                                                 fifo32_put(&task->fifo, 4);
                                                 io_sti();
@@ -330,6 +334,12 @@ void HariMain(void)
                 close_console(shtctl->sheetsO + (i - 768));
             else if (1024 <= i && i <= 2023)
                 close_console(shtctl->sheetsO + (i - 1024));
+            else if (2024 <= i && i <= 2279)
+            {
+                sht2 = shtctl->sheetsO + (i - 2024);
+                memman_free_4k(memman, (int)sht2->buf, 256 * 165);
+                sheet_free(sht2);
+            }
         }
     }
 }
