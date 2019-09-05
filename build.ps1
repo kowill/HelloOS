@@ -26,23 +26,24 @@ Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas |
 }
 
 # app_c 2 hrb
+$apis = @("api001","api002","api003","api004","api005","api006","api007","api008","api009","api010","api011","api012","api013","api014","api015","api016","api017","api018","api019","api020")
 $appTargest = @(
-    @{Name = "a"; Link = @("a", "a_nask") ; HeapSize = "0" },
-    @{Name = "hello3"; Link = @("hello3", "a_nask"); HeapSize = "0" },
-    @{Name = "hello4"; Link = @("hello4", "a_nask"); HeapSize = "0" },
-    @{Name = "winhelo"; Link = @("winhelo", "a_nask"); HeapSize = "0" },
-    @{Name = "winhelo2"; Link = @("winhelo2", "a_nask"); HeapSize = "0" },
-    @{Name = "winhelo3"; Link = @("winhelo3", "a_nask"); HeapSize = "40k" },
-    @{Name = "star1"; Link = @("star1", "a_nask"); HeapSize = "47k" },
-    @{Name = "stars"; Link = @("stars", "a_nask"); HeapSize = "47k" },
-    @{Name = "stars2"; Link = @("stars2", "a_nask"); HeapSize = "47k" },
-    @{Name = "lines"; Link = @("lines", "a_nask"); HeapSize = "47k" },
-    @{Name = "walk"; Link = @("walk", "a_nask"); HeapSize = "47k" },
-    @{Name = "noodle"; Link = @("noodle", "a_nask"); HeapSize = "40k" },
-    @{Name = "beepdown"; Link = @("beepdown", "a_nask"); HeapSize = "40k" },
-    @{Name = "beepup"; Link = @("beepup", "a_nask"); HeapSize = "40k" },
-    @{Name = "color"; Link = @("color", "a_nask"); HeapSize = "56k" },
-    @{Name = "color2"; Link = @("color2", "a_nask"); HeapSize = "56k" }
+    @{Name = "a"; Link = @("a") + $apis ; HeapSize = "0" },
+    @{Name = "hello3"; Link = @("hello3") + $apis; HeapSize = "0" },
+    @{Name = "hello4"; Link = @("hello4") + $apis; HeapSize = "0" },
+    @{Name = "winhelo"; Link = @("winhelo") + $apis; HeapSize = "0" },
+    @{Name = "winhelo2"; Link = @("winhelo2") + $apis; HeapSize = "0" },
+    @{Name = "winhelo3"; Link = @("winhelo3") + $apis; HeapSize = "40k" },
+    @{Name = "star1"; Link = @("star1") + $apis; HeapSize = "47k" },
+    @{Name = "stars"; Link = @("stars") + $apis; HeapSize = "47k" },
+    @{Name = "stars2"; Link = @("stars2") + $apis; HeapSize = "47k" },
+    @{Name = "lines"; Link = @("lines") + $apis; HeapSize = "47k" },
+    @{Name = "walk"; Link = @("walk") + $apis; HeapSize = "47k" },
+    @{Name = "noodle"; Link = @("noodle") + $apis; HeapSize = "40k" },
+    @{Name = "beepdown"; Link = @("beepdown") + $apis; HeapSize = "40k" },
+    @{Name = "beepup"; Link = @("beepup") + $apis; HeapSize = "40k" },
+    @{Name = "color"; Link = @("color") + $apis; HeapSize = "56k" },
+    @{Name = "color2"; Link = @("color2") + $apis; HeapSize = "56k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
