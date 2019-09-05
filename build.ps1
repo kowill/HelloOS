@@ -25,34 +25,42 @@ Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas |
     }
 }
 
+# create lib
+$apis = Get-ChildItem "$($targetPath)\app_c" -depth 0 -include api*.nas  | 
+    % { 
+        $path = "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj"
+        bin\tolset\z_tools\nask.exe "$($_.FullName)" $path
+        return $path
+     }
+bin\tolset\z_tools\golib00.exe $apis "out:tmp\app\apilib.lib"
+
 # app_c 2 hrb
-$apis = @("api001","api002","api003","api004","api005","api006","api007","api008","api009","api010","api011","api012","api013","api014","api015","api016","api017","api018","api019","api020")
+
 $appTargest = @(
-    @{Name = "a"; Link = @("a") + $apis ; HeapSize = "0" },
-    @{Name = "hello3"; Link = @("hello3") + $apis; HeapSize = "0" },
-    @{Name = "hello4"; Link = @("hello4") + $apis; HeapSize = "0" },
-    @{Name = "winhelo"; Link = @("winhelo") + $apis; HeapSize = "0" },
-    @{Name = "winhelo2"; Link = @("winhelo2") + $apis; HeapSize = "0" },
-    @{Name = "winhelo3"; Link = @("winhelo3") + $apis; HeapSize = "40k" },
-    @{Name = "star1"; Link = @("star1") + $apis; HeapSize = "47k" },
-    @{Name = "stars"; Link = @("stars") + $apis; HeapSize = "47k" },
-    @{Name = "stars2"; Link = @("stars2") + $apis; HeapSize = "47k" },
-    @{Name = "lines"; Link = @("lines") + $apis; HeapSize = "47k" },
-    @{Name = "walk"; Link = @("walk") + $apis; HeapSize = "47k" },
-    @{Name = "noodle"; Link = @("noodle") + $apis; HeapSize = "40k" },
-    @{Name = "beepdown"; Link = @("beepdown") + $apis; HeapSize = "40k" },
-    @{Name = "beepup"; Link = @("beepup") + $apis; HeapSize = "40k" },
-    @{Name = "color"; Link = @("color") + $apis; HeapSize = "56k" },
-    @{Name = "color2"; Link = @("color2") + $apis; HeapSize = "56k" }
+    @{Name = "a"; HeapSize = "0" },
+    @{Name = "hello3"; HeapSize = "0" },
+    @{Name = "hello4"; HeapSize = "0" },
+    @{Name = "winhelo"; HeapSize = "0" },
+    @{Name = "winhelo2"; HeapSize = "0" },
+    @{Name = "winhelo3"; HeapSize = "40k" },
+    @{Name = "star1"; HeapSize = "47k" },
+    @{Name = "stars"; HeapSize = "47k" },
+    @{Name = "stars2";HeapSize = "47k" },
+    @{Name = "lines"; HeapSize = "47k" },
+    @{Name = "walk"; HeapSize = "47k" },
+    @{Name = "noodle"; HeapSize = "40k" },
+    @{Name = "beepdown"; HeapSize = "40k" },
+    @{Name = "beepup"; HeapSize = "40k" },
+    @{Name = "color"; HeapSize = "56k" },
+    @{Name = "color2"; HeapSize = "56k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
-Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.nas | Copy-Item -Destination "tmp\app"
 Get-ChildItem "tmp\app" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.exe "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj" }
+
 $appTargest |
 % {
-    $linkTargets = $_.Link | % { "tmp\app\$($_).obj" }
-    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:1k" "map:tmp\app\$($_.Name).map" $linkTargets 
+    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:1k" "map:tmp\app\$($_.Name).map" "tmp\app\$($_.Name).obj" "tmp\app\apilib.lib"
     bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" "$($_.HeapSize)"
 }
 
