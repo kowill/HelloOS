@@ -87,6 +87,7 @@ void init_mouse_cursor8(char *mouse, char bc);
 #define AR_DATA32_RW 0x4092
 #define AR_CODE32_ER 0x409a
 #define ADR_GDT 0x00270000
+#define AR_LDT 0x0082
 
 struct SEGMENT_DESCRIPTOR
 {
@@ -256,6 +257,7 @@ struct TASK
     int level, priority;
     struct FIFO32 fifo;
     struct TSS32 tss;
+    struct SEGMENT_DESCRIPTOR ldt[2];
     struct CONSOLE *cons;
     int ds_base, cons_stack;
 };
