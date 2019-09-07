@@ -26,12 +26,12 @@ Get-ChildItem ($targetPath + '\app') -depth 0 -include *.nas |
 }
 
 # create lib
-$apis = Get-ChildItem "$($targetPath)\app_c" -depth 0 -include api*.nas  | 
-    % { 
-        $path = "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj"
-        bin\tolset\z_tools\nask.exe "$($_.FullName)" $path
-        return $path
-     }
+$apis = Get-ChildItem "$($targetPath)\app_c" -depth 0 -include api*.nas | 
+% { 
+    $path = "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).obj"
+    bin\tolset\z_tools\nask.exe "$($_.FullName)" $path
+    return $path
+}
 bin\tolset\z_tools\golib00.exe $apis "out:tmp\app\apilib.lib"
 
 # app_c 2 hrb
@@ -45,14 +45,15 @@ $appTargest = @(
     @{Name = "winhelo3"; HeapSize = "40k" },
     @{Name = "star1"; HeapSize = "47k" },
     @{Name = "stars"; HeapSize = "47k" },
-    @{Name = "stars2";HeapSize = "47k" },
+    @{Name = "stars2"; HeapSize = "47k" },
     @{Name = "lines"; HeapSize = "47k" },
     @{Name = "walk"; HeapSize = "47k" },
     @{Name = "noodle"; HeapSize = "40k" },
     @{Name = "beepdown"; HeapSize = "40k" },
     @{Name = "beepup"; HeapSize = "40k" },
     @{Name = "color"; HeapSize = "56k" },
-    @{Name = "color2"; HeapSize = "56k" }
+    @{Name = "color2"; HeapSize = "56k" },
+    @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
@@ -60,7 +61,11 @@ Get-ChildItem "tmp\app" -depth 0 -include *.nas | % { bin\tolset\z_tools\nask.ex
 
 $appTargest |
 % {
-    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:1k" "map:tmp\app\$($_.Name).map" "tmp\app\$($_.Name).obj" "tmp\app\apilib.lib"
+    $stack = $_["StackSize"];
+    if ($stack -eq $null) {
+        $stack = "1k";
+    }
+    bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:$($stack)" "map:tmp\app\$($_.Name).map" "tmp\app\$($_.Name).obj" "tmp\app\apilib.lib"
     bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" "$($_.HeapSize)"
 }
 
