@@ -56,7 +56,8 @@ $appTargest = @(
     @{Name = "sosu"; HeapSize = "56k"; StackSize = "11k" },
     @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" },
     @{Name = "typeipl"; HeapSize = "40k"; },
-    @{Name = "type"; HeapSize = "0";}
+    @{Name = "type"; HeapSize = "0" },
+    @{Name = "iroha"; HeapSize = "0" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
@@ -105,6 +106,7 @@ Add-Content $scriptPath "copy from:tmp\haribote.sys to:@:"
 Add-Content $scriptPath "copy from:readme.md to:@:"
 Add-Content $scriptPath "copy from:build.ps1 to:@:"
 Get-ChildItem "tmp\app" -depth 0 -include *.hrb | % { Add-Content $scriptPath ("copy from:tmp\app\$($_.Name) to:@:") }
+Add-Content $scriptPath "copy from:bin\nihongo.fnt to:@:"
 Add-Content $scriptPath "imgout:boot.vfd"
 
 # edimg

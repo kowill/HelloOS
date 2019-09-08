@@ -23,6 +23,10 @@ void HariMain(void)
     struct FIFO32 fifo, keycmd;
     int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
     struct TASK *task_a, *task;
+    int *fat;
+    unsigned char *nihongo;
+    struct FILEINFO *finfo;
+    extern char hankaku[4096];
 
     static char keytable0[0x80] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0x08, 0,
@@ -67,6 +71,7 @@ void HariMain(void)
     task_run(task_a, 1, 2);
     *((int *)0x0fe4) = (int)shtctl;
     *((int *)0x0fec) = (int)&fifo;
+    task_a->langmode = 0;
 
     /* sht_mouse */
     sht_mouse = sheet_alloc(shtctl);
@@ -95,6 +100,23 @@ void HariMain(void)
 
     fifo32_put(&keycmd, KEYCMD_LED);
     fifo32_put(&keycmd, key_leds);
+
+    /* read nihongo.fnt */
+    nihongo = (unsigned char *)memman_alloc_4k(memman, 16 * 256 + 32 * 94 * 47);
+    fat = (int *)memman_alloc_4k(memman, 4 * 2880);
+    file_readfat(fat, (unsigned char *)(ADR_DISKING + 0x000200));
+    finfo = file_search("nihongo.fnt", (struct FILEINFO *)(ADR_DISKING + 0x002600), 224);
+    if (finfo != 0)
+        file_loadfile(finfo->clustno, finfo->size, nihongo, fat, (char *)(ADR_DISKING + 0x003e00));
+    else
+    {
+        for (i = 0; i < 16 * 256; i++)
+            nihongo[i] = hankaku[i];
+        for (i = 16 * 256; i < 16 * 256 + 32 * 94 * 47; i++)
+            nihongo[i] = 0xff;
+    }
+    *((int *)0x0fe8) = (int)nihongo;
+    memman_free_4k(memman, (int)fat, 4 * 2880);
 
     for (;;)
     {
