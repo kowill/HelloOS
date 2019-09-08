@@ -3,11 +3,14 @@
 [BITS 32]
 [FILE "api021.nas"]
 
-GLOBAL __alloca
+GLOBAL _api_fopen
 
 [SECTION .text]
 
-__alloca:
-    ADD EAX, -4
-    SUB ESP, EAX
-    JMP DWORD [ESP+EAX]
+_api_fopen:      ; int api_fopen(char *fname);
+    PUSH EBX
+    MOV EDX, 21
+    MOV EBX, [ESP+8]
+    INT 0x40
+    POP EBX
+    RET
