@@ -40,8 +40,8 @@ $appTargest = @(
     @{Name = "a"; HeapSize = "0" },
     @{Name = "hello3"; HeapSize = "0" },
     @{Name = "hello4"; HeapSize = "0" },
-    @{Name = "winhelo"; HeapSize = "0" },
-    @{Name = "winhelo2"; HeapSize = "0" },
+    @{Name = "winhelo"; HeapSize = "0"; StackSize = "8k" },
+    @{Name = "winhelo2"; HeapSize = "0"; StackSize = "8k" },
     @{Name = "winhelo3"; HeapSize = "40k" },
     @{Name = "star1"; HeapSize = "47k" },
     @{Name = "stars"; HeapSize = "47k" },
@@ -53,7 +53,9 @@ $appTargest = @(
     @{Name = "beepup"; HeapSize = "40k" },
     @{Name = "color"; HeapSize = "56k" },
     @{Name = "color2"; HeapSize = "56k" },
-    @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" }
+    @{Name = "sosu"; HeapSize = "56k"; StackSize = "11k" },
+    @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" },
+    @{Name = "typeipl"; HeapSize = "40k"; }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
