@@ -7,7 +7,7 @@ GLOBAL _api_fread
 
 [SECTION .text]
 
-_api_fread:      ; void api_fread(char *buf, int maxsize, int fhandle);
+_api_fread:      ; int api_fread(char *buf, int maxsize, int fhandle);
     PUSH EBX
     MOV EDX, 25
     MOV EAX, [ESP+16]

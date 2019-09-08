@@ -7,7 +7,7 @@ GLOBAL _api_fsize
 
 [SECTION .text]
 
-_api_fsize:      ; void api_fsize(int fhandle, int mode);
+_api_fsize:      ; int api_fsize(int fhandle, int mode);
     MOV EDX, 24
     MOV EAX, [ESP+4]
     MOV ECX, [ESP+8]
