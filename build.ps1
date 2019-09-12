@@ -71,7 +71,8 @@ $appTargest |
         $stack = "1k";
     }
     bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:$($stack)" "map:tmp\app\$($_.Name).map" "tmp\app\$($_.Name).obj" "tmp\app\apilib.lib"
-    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).hrb" "$($_.HeapSize)"
+    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).org" "$($_.HeapSize)"
+    bin\tolset\z_tools\bim2bin.exe -osacmp "in:tmp\app\$($_.Name).org" "out:tmp\app\$($_.Name).hrb"
 }
 
 # c 2 gas
