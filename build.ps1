@@ -55,7 +55,6 @@ $appTargest = @(
     @{Name = "color2"; HeapSize = "56k" },
     @{Name = "sosu"; HeapSize = "56k"; StackSize = "11k" },
     @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" },
-    @{Name = "typeipl"; HeapSize = "40k"; },
     @{Name = "type"; HeapSize = "0" },
     @{Name = "iroha"; HeapSize = "0" },
     @{Name = "chlang"; HeapSize = "0" }

@@ -269,8 +269,8 @@ struct TASK
 struct FILEHANDLE
 {
     char *buf;
-    char size;
-    char pos;
+    int size;
+    int pos;
 };
 
 struct TASKLEVEL
