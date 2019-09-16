@@ -37,11 +37,11 @@ bin\tolset\z_tools\golib00.exe $apis "out:tmp\app\apilib.lib"
 # app_c 2 hrb
 
 $appTargest = @(
-    @{Name = "a"; HeapSize = "0" },
-    @{Name = "hello3"; HeapSize = "0" },
-    @{Name = "hello4"; HeapSize = "0" },
-    @{Name = "winhelo"; HeapSize = "0"; StackSize = "8k" },
-    @{Name = "winhelo2"; HeapSize = "0"; StackSize = "8k" },
+    @{Name = "a" },
+    @{Name = "hello3" },
+    @{Name = "hello4" },
+    @{Name = "winhelo"; StackSize = "8k" },
+    @{Name = "winhelo2"; StackSize = "8k" },
     @{Name = "winhelo3"; HeapSize = "40k" },
     @{Name = "star1"; HeapSize = "47k" },
     @{Name = "stars"; HeapSize = "47k" },
@@ -55,12 +55,13 @@ $appTargest = @(
     @{Name = "color2"; HeapSize = "56k" },
     @{Name = "sosu"; HeapSize = "56k"; StackSize = "11k" },
     @{Name = "sosu3"; HeapSize = "56k"; StackSize = "11k" },
-    @{Name = "type"; HeapSize = "0" },
-    @{Name = "iroha"; HeapSize = "0" },
-    @{Name = "chlang"; HeapSize = "0" },
-    @{Name = "notrec"; HeapSize = "0"; StackSize = "11k" },
-    @{Name = "bball"; HeapSize = "0"; StackSize = "52k" },
-    @{Name = "invader"; HeapSize = "0"; StackSize = "90k" }
+    @{Name = "type" },
+    @{Name = "iroha" },
+    @{Name = "chlang" },
+    @{Name = "notrec"; StackSize = "11k" },
+    @{Name = "bball"; StackSize = "52k" },
+    @{Name = "invader"; StackSize = "90k" },
+    @{Name = "calc"; StackSize = "4k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
@@ -72,8 +73,12 @@ $appTargest |
     if ($stack -eq $null) {
         $stack = "1k";
     }
+    $heap = $_["HeapSize"];
+    if ($heap -eq $null) {
+        $heap = "0";
+    }
     bin\tolset\z_tools\obj2bim.exe "@bin\tolset\z_tools\haribote\haribote.rul" "out:tmp\app\$($_.Name).bim" "stack:$($stack)" "map:tmp\app\$($_.Name).map" "tmp\app\$($_.Name).obj" "tmp\app\apilib.lib"
-    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).org" "$($_.HeapSize)"
+    bin\tolset\z_tools\bim2hrb.exe "tmp\app\$($_.Name).bim" "tmp\app\$($_.Name).org" "$($heap)"
     bin\tolset\z_tools\bim2bin.exe -osacmp "in:tmp\app\$($_.Name).org" "out:tmp\app\$($_.Name).hrb"
 }
 
