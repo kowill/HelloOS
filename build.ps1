@@ -61,7 +61,8 @@ $appTargest = @(
     @{Name = "notrec"; StackSize = "11k" },
     @{Name = "bball"; StackSize = "52k" },
     @{Name = "invader"; StackSize = "90k" },
-    @{Name = "calc"; StackSize = "4k" }
+    @{Name = "calc"; StackSize = "4k" },
+    @{Name = "tview"; StackSize = "1024k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
