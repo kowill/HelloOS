@@ -62,7 +62,8 @@ $appTargest = @(
     @{Name = "bball"; StackSize = "52k" },
     @{Name = "invader"; StackSize = "90k" },
     @{Name = "calc"; StackSize = "4k" },
-    @{Name = "tview"; StackSize = "1024k" }
+    @{Name = "tview"; StackSize = "1024k" },
+    @{Name = "gview"; StackSize = "4480k" }
 )
 Get-ChildItem "$($targetPath)\app_c" -depth 0 -include *.c | % { bin\tolset\z_tools\cc1.exe -I bin\tolset\z_tools\haribote\ -Os -Wall -quiet -o "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).gas" $_.FullName }
 Get-ChildItem "tmp\app" -depth 0 -include *.gas | % { bin\tolset\z_tools\gas2nask.exe -a "$($_.FullName)" "tmp\app\$([System.IO.Path]::GetFileNameWithoutExtension($_.Name)).nas" }
@@ -116,6 +117,8 @@ Add-Content $scriptPath "wbinimg src:tmp\ipl.bin len:512 from:0 to:0"
 Add-Content $scriptPath "copy from:tmp\haribote.sys to:@:"
 Add-Content $scriptPath "copy from:readme.md to:@:"
 Add-Content $scriptPath "copy from:build.ps1 to:@:"
+Add-Content $scriptPath "copy from:bin\fujisan.jpg to:@:"
+Add-Content $scriptPath "copy from:bin\fujisan_.jpg to:@:"
 Get-ChildItem "tmp\app" -depth 0 -include *.hrb | % { Add-Content $scriptPath ("copy from:tmp\app\$($_.Name) to:@:") }
 Add-Content $scriptPath "copy from:bin\nihongo.fnt to:@:"
 Add-Content $scriptPath "imgout:boot.vfd"
